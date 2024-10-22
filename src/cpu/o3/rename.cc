@@ -66,7 +66,8 @@ Rename::Rename(CPU *_cpu, const BaseO3CPUParams &params)
       commitToRenameDelay(params.commitToRenameDelay),
       renameWidth(params.renameWidth),
       numThreads(params.numThreads),
-      stats(_cpu)
+      stats(_cpu),
+                        valuePredictor(params.valuePred)
 {
     if (renameWidth > MaxWidth)
         fatal("renameWidth (%d) is larger than compiled limit (%d),\n"
@@ -1268,6 +1269,31 @@ Rename::renameDestRegs(const DynInstPtr &inst, ThreadID tid)
                             rename_result.second);
 
         ++stats.renamedOperands;
+
+                                // do the value prediction.
+                                // In EStride or other implementations of value predictors, since
+                                // it takes time for the value predictor to produce a prediction,
+                                // the value prediction is often started after the fetch phase,
+                                // where the instructions are not decoded, so we can't use the
+                                // information in dyninst. The reason for placing the value
+                                // prediction in the Rename phase is that on gem5,
+                                // the predictor does not require a delay to produce a result.
+                                assert(!inst->isVector()); // now not support RVV
+                                valuepred::VPPredMetaData* vp_pred_metadata =
+                                        valuepred::VPDataStructFactory::buildPredMetaData(ValuePredType::EStride);
+                                inst->vpresult = valuePredictor->valuePredict(*vp_pred_metadata);
+                                // sometime should speculative update value predictor?
+                                if (inst->vpresult.speculative){
+                                        gem5_assert(!scoreboard->getReg(rename_result.first),
+                                                        "before set the scoreboard, the scoreboard must unset before");
+                                        scoreboard->setReg(rename_result.first);
+                                        inst->setRegOperand(inst->staticInst.get(), 0, inst->vpresult.value);
+                                        // must pop result here
+                                        inst->popResult();
+                                }else{
+                                        // value prediction not taken
+                                }
+
     }
 }
 

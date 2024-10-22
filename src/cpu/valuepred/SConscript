@@ -2,9 +2,11 @@ Import('*')
 
 SimObject('ValuePredictor.py',
           sim_objects=[
-            'ValuePredictor'
+            'ValuePredictor',
+            'EStride'
           ],
           enums=['ValuePredType'])
 
 Source('valuepred_unit.cc')
-
+Source('enhanced_stride.cc')
+Source('valuepred_metadata.cc')

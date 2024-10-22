@@ -114,7 +114,8 @@ Commit::Commit(CPU *_cpu, branch_prediction::BPredUnit *_bp, const BaseO3CPUPara
       canHandleInterrupts(true),
       avoidQuiesceLiveLock(false),
       stats(_cpu, this),
-      archDBer(params.arch_db)
+      archDBer(params.arch_db),
+                        valuePredictor(params.valuePred)
 {
     if (commitWidth > MaxWidth)
         fatal("commitWidth (%d) is larger than compiled limit (%d),\n"
@@ -622,6 +623,10 @@ Commit::squashAll(ThreadID tid)
     rob->squash(squashed_inst, tid);
     changedROBNumEntries[tid] = true;
 
+                // value prediction also squash in this
+                // todo: param
+                valuePredictor->squash(0);
+
     // Send back the sequence number of the squashed instruction.
     toIEW->commitInfo[tid].doneSeqNum = squashed_inst;
 
@@ -943,11 +948,15 @@ Commit::commit()
                     tid,
                     fromIEW->mispredictInst[tid]->pcState().instAddr(),
                     fromIEW->squashedSeqNum[tid]);
-            } else {
+            } else if (fromIEW->memoryViolation[tid]){
                 DPRINTF(Commit,
                     "[tid:%i] Squashing due to order violation [sn:%llu]\n",
                     tid, fromIEW->squashedSeqNum[tid]);
-            }
+            } else if (fromIEW->valuePredictionError[tid]){
+                                                                // DPRINTF
+                                                } else{
+                                                                panic("undefined in commit squash\n");
+                                                }
 
             DPRINTF(Commit, "[tid:%i] Redirecting to PC %#x\n",
                     tid, *fromIEW->pc[tid]);
@@ -968,6 +977,12 @@ Commit::commit()
 
             rob->squash(squashed_inst, tid);
             changedROBNumEntries[tid] = true;
+
+                                                // squash value predictor
+                                                // Whatever the cause of the squash,
+                                                // the value predictor needs to be cleared.
+                                                // todo: param
+                                                valuePredictor->squash(0);
 
             toIEW->commitInfo[tid].doneSeqNum = squashed_inst;
 

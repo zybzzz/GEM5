@@ -2,7 +2,7 @@
 #define __VALUEPRED_UNIT_HH__
 
 #include "base/statistics.hh"
-#include "enums/ValuePredType.hh"
+#include "cpu/valuepred/valuepred_metadata.hh"
 #include "params/ValuePredictor.hh"
 #include "sim/sim_object.hh"
 #include "sim/stats.hh"
@@ -13,35 +13,6 @@ namespace gem5
 namespace valuepred
 {
 
-class VPPredMetaData
-{
-
-};
-
-class VPUpdateMetaData
-{
-
-};
-
-class VPSpecUpdateMetaData
-{
-
-};
-
-class VPResult
-{
-
-};
-
-// This factory class constructs predictor-related data structures
-// based on the type of predictor passed in.
-class VPDataStructFactory
-{
-  public:
-   static VPPredMetaData buildPredMetaData(ValuePredType type);
-   static VPUpdateMetaData buildUpdateMetaData(ValuePredType type);
-   static VPSpecUpdateMetaData buildSpecUpdateMetaData(ValuePredType type);
-};
 
 
 class VPUnit : public SimObject

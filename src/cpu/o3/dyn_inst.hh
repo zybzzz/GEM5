@@ -65,6 +65,7 @@
 #include "cpu/reg_class.hh"
 #include "cpu/static_inst.hh"
 #include "cpu/translation.hh"
+#include "cpu/valuepred/valuepred_metadata.hh"
 #include "debug/CommitTrace.hh"
 #include "debug/DecoupleBP.hh"
 #include "debug/HtmCpu.hh"
@@ -1418,6 +1419,11 @@ class DynInst : public ExecContext, public RefCounted
 
     /** get golden */
     uint8_t *getGolden() { return goldenData; }
+
+
+        public:
+                // value prediction
+                valuepred::VPResult vpresult;
 };
 
 } // namespace o3

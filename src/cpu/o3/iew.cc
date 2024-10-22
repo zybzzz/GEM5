@@ -90,7 +90,8 @@ IEW::IEW(CPU *_cpu, const BaseO3CPUParams &params)
       wbDelay(params.executeToWriteBackDelay),
       wbWidth(params.wbWidth),
       numThreads(params.numThreads),
-      iewStats(cpu)
+      iewStats(cpu),
+                        valuePredictor(params.valuePred)
 {
     if (wbWidth > MaxWidth)
         fatal("wbWidth (%d) is larger than compiled limit (%d),\n"
@@ -600,6 +601,7 @@ IEW::squashDueToMemOrder(const DynInstPtr& inst, ThreadID tid)
             inst->seqNum <= execWB->squashedSeqNum[tid]) {
         execWB->squash[tid] = true;
 
+                                execWB->memoryViolation[tid] = true;
         execWB->squashedSeqNum[tid] = inst->seqNum;
         execWB->squashedStreamId[tid] = inst->getFsqId();
         execWB->squashedTargetId[tid] = inst->getFtqId();
@@ -621,6 +623,44 @@ IEW::squashDueToMemOrder(const DynInstPtr& inst, ThreadID tid)
                 execWB->squashedLoopIter[tid]);
 
 
+    }
+}
+
+void
+IEW::squashDueToValuePrediction(const DynInstPtr &inst, ThreadID tid)
+{
+    DPRINTF(IEW,
+            "[tid:%i] value prediction error, squashing violator and younger "
+            "insts, PC: %s [sn:%llu].\n",
+            tid, inst->pcState(), inst->seqNum);
+    if (!execWB->squash[tid] || inst->seqNum <= execWB->squashedSeqNum[tid]) {
+        execWB->squash[tid] = true;
+
+        execWB->valuePredictionError[tid] = true;
+        execWB->squashedSeqNum[tid] = inst->seqNum;
+        execWB->squashedStreamId[tid] = inst->getFsqId();
+        execWB->squashedTargetId[tid] = inst->getFtqId();
+        execWB->squashedLoopIter[tid] = inst->getLoopIteration();
+        set(execWB->pc[tid], inst->pcState());
+
+                                // advance pc to next instruction
+        inst->staticInst->advancePC(*execWB->pc[tid]);
+
+        execWB->mispredictInst[tid] = NULL;
+
+        // Even speculatively executed value prediction instructions cannot
+                                // be squashed after obtaining a correct result.
+        execWB->includeSquashInst[tid] = false;
+
+        wroteToTimeBuffer = true;
+
+        DPRINTF(DecoupleBP,
+                "value prediction error (pc=%#lx) set stream id to %lu, target id "
+                "to %lu, loop iter to %u\n",
+                execWB->pc[tid]->instAddr(),
+                execWB->squashedStreamId[tid],
+                execWB->squashedTargetId[tid],
+                execWB->squashedLoopIter[tid]);
     }
 }
 
