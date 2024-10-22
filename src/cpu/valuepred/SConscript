@@ -1,0 +1,10 @@
+Import('*')
+
+SimObject('ValuePredictor.py',
+          sim_objects=[
+            'ValuePredictor'
+          ],
+          enums=['ValuePredType'])
+
+Source('valuepred_unit.cc')
+
