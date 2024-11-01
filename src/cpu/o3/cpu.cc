@@ -45,6 +45,7 @@
 #include <cassert>
 
 #include "arch/riscv/regs/misc.hh"
+#include "base/output.hh"
 #include "config/the_isa.hh"
 #include "cpu/activity.hh"
 #include "cpu/checker/cpu.hh"
@@ -318,6 +319,18 @@ CPU::CPU(const BaseO3CPUParams &params)
         fatal("O3CPU %s has no interrupt controller.\n"
               "Ensure createInterruptController() is called.\n", name());
     }
+
+    intAddCount = 0;
+    addInsts.resize(0);
+
+    registerExitCallback([this](){
+       auto out_handle = simout.create("intAddInst.txt", false, true);
+       *out_handle->stream() << intAddCount << std::endl << std::endl;
+       for(const std::string &s : addInsts){
+            *out_handle->stream() << s << std::endl;
+       }
+       simout.close(out_handle);
+    });
 }
 
 void
@@ -1250,6 +1263,11 @@ CPU::instDone(ThreadID tid, const DynInstPtr &inst)
         thread[tid]->numInst++;
         thread[tid]->threadStats.numInsts++;
         cpuStats.committedInsts[tid]++;
+
+        if(inst->isIntAdd()){
+            ++intAddCount;
+            addInsts.push_back(inst->genDisassembly());
+        }
 
         if (this->nextDumpInstCount
                 && totalInsts() == this->nextDumpInstCount) {

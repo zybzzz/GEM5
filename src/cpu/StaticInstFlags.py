@@ -54,6 +54,7 @@ class StaticInstFlags(Enum):
         'IsMov',
 
         'IsInteger',        # References integer regs.
+        'IsIntAdd',         # int add instruction, include compress
         'IsFloating',       # References FP regs.
         'IsVector',         # References Vector regs.
         'IsVectorElem',     # References Vector reg elems.

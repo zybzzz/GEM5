@@ -594,6 +594,7 @@ class DynInst : public ExecContext, public RefCounted
     bool isInstPrefetch() const { return staticInst->isInstPrefetch(); }
     bool isDataPrefetch() const { return staticInst->isDataPrefetch(); }
     bool isInteger()      const { return staticInst->isInteger(); }
+    bool isIntAdd()       const { return staticInst->isIntAdd(); }
     bool isFloating()     const { return staticInst->isFloating(); }
     bool isVector()       const { return staticInst->isVector(); }
     bool isControl()      const { return staticInst->isControl(); }
