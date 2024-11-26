@@ -1173,7 +1173,7 @@ IEW::classifyInstToDispQue(ThreadID tid)
 
 
             // for the vp, three scoreboards should ready at begin.
-            if (inst->vpResult.speculative) {
+            if (inst->vpSupported && inst->vpResult.speculative) {
                 for (int i = 0; i < inst->numDestRegs(); i++) {
                     auto dest = inst->renamedDestIdx(i);
                     if (dest->isFixedMapping()) {
@@ -1183,6 +1183,8 @@ IEW::classifyInstToDispQue(ThreadID tid)
                     scheduler->scoreboard[dest->flatIndex()] = true;
                     scheduler->bypassScoreboard[dest->flatIndex()] = true;
                     scheduler->earlyScoreboard[dest->flatIndex()] = true;
+
+                    DPRINTF(IEW,"[sn:%llu] vp set scoreboard to true\n", inst->seqNum);
                 }
             }
 
