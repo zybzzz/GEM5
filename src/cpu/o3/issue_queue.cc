@@ -272,7 +272,7 @@ IssueQue::wakeUpDependents(const DynInstPtr& inst, bool speculative)
         DPRINTF(Schedule, "was %s woken by p%lu [sn:%llu]\n", speculative ? "spec" : "wb", dst->flatIndex(),
                 inst->seqNum);
 
-        if (inst->vpResult.speculative){
+        if (inst->vpSupported && inst->vpResult.speculative){
             gem5_assert(!subDepGraph[dst->flatIndex()].size(),
                     "must no dependency in value prediction instruction dest register");
         }
