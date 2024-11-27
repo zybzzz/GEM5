@@ -188,6 +188,7 @@ def build_test_system(np, args):
         test_sys.arch_db.dump_l1_miss_trace = False
         test_sys.arch_db.dump_bop_train_trace = False
         test_sys.arch_db.dump_sms_train_trace = False
+        test_sys.arch_db.dump_estride_trace = False
         test_sys.arch_db.table_cmds = [
             "CREATE TABLE L1MissTrace(" \
             "ID INTEGER PRIMARY KEY AUTOINCREMENT," \
@@ -240,6 +241,7 @@ def build_test_system(np, args):
             "Score INT NOT NULL," \
             "Miss BOOL NOT NULL," \
             "SITE TEXT);"
+            ,
 
             "CREATE TABLE SMSTrainTrace(" \
             "ID INTEGER PRIMARY KEY AUTOINCREMENT," \
@@ -250,6 +252,26 @@ def build_test_system(np, args):
             "Conf INT NOT NULL," \
             "Miss BOOL NOT NULL," \
             "SITE TEXT);"
+            ,
+            
+            
+            "CREATE TABLE EStrideWorkTrace (         " \
+            "    ID INTEGER PRIMARY KEY AUTOINCREMENT," \ 
+            "    Tick INT NOT NULL,                  "  \ 
+            "    PC INT NOT NULL,                    "  \  
+            "    Way TINYINT NOT NULL,               "  \ 
+            "    Index TINYINT NOT NULL,             "  \ 
+            "    Conf TINYINT NOT NULL,              "  \ 
+            "    Useful TINYINT NOT NULL,            "  \ 
+            "    Transaction TINYINT NOT NULL,       "  \ 
+            "    Hit TINYINT NOT NULL,               "  \ 
+            "    Pred TINYINT NOT NULL,              "  \ 
+            "    PredRes TINYINT NOT NULL,           "  \ 
+            "    UpdateDecision TINYINT NOT NULL,    "  \ 
+            "    Allocate TINYINT NOT NULL,          "  \ 
+            "    AllocateFrom TINYINT NOT NULL       "  \ 
+            ");"
+
         ]
 
     # config debug trace

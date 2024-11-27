@@ -9,7 +9,7 @@ namespace gem5
 namespace valuepred
 {
 
-VPUnit::VPUnit(const Params &params) : SimObject(params), stats(this) {}
+VPUnit::VPUnit(const Params &params) : SimObject(params), archDBer(params.arch_db), stats(this) {}
 
 VPUnit::ValuePredUnitStats::ValuePredUnitStats(VPUnit *vp)
     : statistics::Group(vp),

@@ -6,6 +6,7 @@
 #include "base/statistics.hh"
 #include "cpu/valuepred/valuepred_metadata.hh"
 #include "params/ValuePredictor.hh"
+#include "sim/arch_db.hh"
 #include "sim/sim_object.hh"
 #include "sim/stats.hh"
 
@@ -22,6 +23,7 @@ class VPUnit : public SimObject
   private:
     using Params = ValuePredictorParams;
 
+    ArchDBer *archDBer;
   public:
     VPUnit(const Params &params);
 

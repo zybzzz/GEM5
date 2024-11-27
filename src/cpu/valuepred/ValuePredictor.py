@@ -12,6 +12,8 @@ class ValuePredictor(SimObject):
     cxx_header = "cpu/valuepred/valuepred_unit.hh"
     abstract = True
 
+    arch_db = Param.ArchDBer(Parent.any, "Arch DB")
+
 class EStride(ValuePredictor):
     type = "EStride"
     cxx_class = "gem5::valuepred::EStride"
